@@ -2,6 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
+import styles from './Footer.css';
+
 export default class Footer extends React.Component {
   render () {
     const {
@@ -17,7 +19,7 @@ export default class Footer extends React.Component {
     const itemWord = count === 1 ? 'item' : 'items';
 
     return (
-      <footer className='footer'>
+      <footer className={styles.footer}>
         <span className='todo-count'>
           <strong>{count}</strong> {itemWord} left
         </span>
