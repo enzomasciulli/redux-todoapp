@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
@@ -6,37 +6,48 @@ export default class TodoItem extends React.Component {
   constructor (props) {
     super(props)
 
-    this.state = { editText: '' }
+    this.state = {
+      editText: props.todo.text,
+      editing: false
+    };
   }
 
-  handleChange () {
-
+  handleChange (event) {
+    this.setState({ editText: event.target.value });
   }
 
   handleEdit () {
-
+    this.setState({ editing: true });
   }
 
-  handleKeyDown () {
-
+  handleKeyDown (event) {
+    if (event.key === 'Enter') {
+      this.handleSubmit();
+    }
   }
 
   handleSubmit () {
-
+    console.log(this.state.editText)
+    this.setState({ editing: false });
+    this.props.onEdit(this.state.editText);
   }
 
   render () {
     const {
-      completed,
-      editing,
       onDestroy,
       onToggle,
-      text
+      todo
     } = this.props;
 
     const {
-      editText
+      editText,
+      editing
     } = this.state;
+
+    const {
+      completed,
+      text
+    } = todo;
 
     const handleChange = this.handleChange.bind(this);
     const handleEdit = this.handleEdit.bind(this);
@@ -52,7 +63,7 @@ export default class TodoItem extends React.Component {
             checked={completed}
             onChange={onToggle}
           />
-          <label onDoubleClick={handleEdit}>{text}</label>
+          <label onDoubleClick={completed ? null : handleEdit}>{text}</label>
           <button
             className='destroy'
             onClick={onDestroy}
@@ -67,19 +78,16 @@ export default class TodoItem extends React.Component {
           onKeyDown={handleKeyDown}
         />
       </li>
-    )
+    );
   }
 }
 
 TodoItem.propTypes = {
-  completed: PropTypes.bool.isRequired,
-  editing: PropTypes.bool.isRequired,
-  text: PropTypes.string,
-  onDestroy: Function.prototype,
-  onToggle: Function.prototype
-}
-
-TodoItem.defaultProps = {
-  completed: false,
-  editing: false
-}
+  todo: PropTypes.shape({
+    text: PropTypes.string.isRequired,
+    completed: PropTypes.bool.isRequired,
+  }).isRequired,
+  onDestroy: PropTypes.func.isRequired,
+  onEdit: PropTypes.func.isRequired,
+  onToggle: PropTypes.func.isRequired,
+};

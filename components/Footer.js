@@ -7,7 +7,7 @@ import styles from './Footer.css';
 export default class Footer extends React.Component {
   render () {
     const {
-      count,
+      activeTodoCount,
       completedTodoCount,
       filter,
       onClearCompleted,
@@ -16,13 +16,15 @@ export default class Footer extends React.Component {
       toggleCompleted,
     } = this.props;
 
-    const itemWord = count === 1 ? 'item' : 'items';
+    let itemMessage;
+
+    if (activeTodoCount === 0) itemMessage = 'no item';
+    if (activeTodoCount === 1) itemMessage = '1 item left';
+    if (activeTodoCount > 1) itemMessage = `${activeTodoCount} items left`;
 
     return (
-      <footer className={styles.footer}>
-        <span className='todo-count'>
-          <strong>{count}</strong> {itemWord} left
-        </span>
+      <footer className='footer'>
+        <span className='todo-count'>{itemMessage}</span>
         <ul className='filters'>
           <li>
             <a

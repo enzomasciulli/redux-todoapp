@@ -6,21 +6,26 @@ import TodoItem from './TodoItem';
 
 class Root extends React.Component {
   componentDidMount () {
-    this.props.fetchTodosIfNeeded()
+    this.props.fetchTodosIfNeeded();
   }
 
   render () {
     const {
       activeTodoCount,
+      addTodo,
       completedTodoCount,
+      completedTodos,
       filter,
+      onClearCompleted,
+      onDestroy,
+      onEdit,
+      onToggle,
+      title,
+      todos,
       toggleActive,
       toggleAll,
-      toggleCompleted,
-      onClearCompleted,
-      todos,
-      title
-    } = this.props
+      toggleCompleted
+    } = this.props;
 
     return (
       <section className='todoapp'>
@@ -31,6 +36,16 @@ class Root extends React.Component {
               className='new-todo'
               placeholder='What needs to be done?'
               autoFocus={true}
+              onKeyDown={(event) => {
+                const target = event.target;
+                const text = target.value;
+                const key = event.key;
+
+                if ((text !== '') && (key === 'Enter')) {
+                  addTodo(text);
+                  target.value = '';
+                }
+              }}
             />
           </header>
 
@@ -40,11 +55,21 @@ class Root extends React.Component {
               type='checkbox'
             />
             <ul className='todo-list'>
-            {todos.list.map(todo => (
-              <TodoItem key={todo.id}
-                text={todo.text}
-              />
-            ))}
+            {todos.list
+              .filter(({ completed }) => {
+                if (filter.completed) return completed;
+                if (filter.active) return !completed;
+                return true; // filter.all
+              })
+              .map((todo, i) => (
+                <TodoItem key={i}
+                  onDestroy={onDestroy(todo)}
+                  onEdit={onEdit(todo)}
+                  onToggle={onToggle(todo)}
+                  todo={todo}
+                />
+              ))
+            }
             </ul>
           </section>
           {(activeTodoCount || completedTodoCount) ? (
@@ -55,33 +80,41 @@ class Root extends React.Component {
               toggleAll={toggleAll}
               toggleCompleted={toggleCompleted}
               filter={filter}
-              onClearCompleted={onClearCompleted}
+              onClearCompleted={onClearCompleted(completedTodos)}
             />
           ) : null}
         </div>
       </section>
-    )
+    );
   }
 }
 
 Root.propTypes = {
   activeTodoCount: PropTypes.number.isRequired,
+  addTodo: PropTypes.func.isRequired,
   completedTodoCount: PropTypes.number.isRequired,
   fetchTodosIfNeeded: PropTypes.func.isRequired,
   onClearCompleted: PropTypes.func.isRequired,
+  onDestroy: PropTypes.func.isRequired,
+  onEdit: PropTypes.func.isRequired,
+  onToggle: PropTypes.func.isRequired,
   title: PropTypes.string.isRequired,
   todos: PropTypes.shape({
     list: PropTypes.array.isRequired
   }).isRequired
-}
+};
 
 Root.defaultProps = {
   activeTodoCount: 0,
+  addTodo: Function.prototype,
   completedTodoCount: 0,
   fetchTodosIfNeeded: Function.prototype,
   onClearCompleted: Function.prototype,
+  onDestroy: Function.prototype,
+  onEdit: Function.prototype,
+  onToggle: Function.prototype,
   title: 'Todo app',
   todos: { list: [] }
-}
+};
 
-export default Root
+export default Root;

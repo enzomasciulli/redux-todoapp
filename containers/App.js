@@ -1,8 +1,12 @@
 import Root from '../components/Root'
 import { connect } from 'react-redux'
 import {
+  addTodo,
+  deleteTodo,
+  editTodo,
+  fetchTodosIfNeeded,
   toggleFilter,
-  fetchTodosIfNeeded
+  toggleTodo,
 } from '../actions'
 
 const mapStateToProps = (state, ownProps) => {
@@ -12,28 +16,52 @@ const mapStateToProps = (state, ownProps) => {
     return todo.completed ? accum : accum + 1;
   }, 0);
 
+  const completedTodos = todosList.filter(({ completed }) => completed);
+
   return Object.assign({}, state, {
     activeTodoCount,
-    completedTodoCount: todosList.length - activeTodoCount
+    completedTodoCount: todosList.length - activeTodoCount,
+    completedTodos,
   })
 }
 
 const mapDispatchToProps = dispatch => {
   return {
-    fetchTodosIfNeeded() {
-      dispatch(fetchTodosIfNeeded())
+    addTodo(text) {
+      dispatch(addTodo({ text, completed: false }));
     },
-    onClearCompleted() {
-      // TODO
+    fetchTodosIfNeeded() {
+      dispatch(fetchTodosIfNeeded());
+    },
+    onClearCompleted(todos) {
+      console.log(todos)
+      return function () {
+        todos.forEach(todo => dispatch(deleteTodo(todo)));
+      }
+    },
+    onDestroy(todo) {
+      return function () {
+        dispatch(deleteTodo(todo))
+      }
+    },
+    onEdit(todo) {
+      return function (text) {
+        dispatch(editTodo(todo, text))
+      }
+    },
+    onToggle(todo) {
+      return function () {
+        dispatch(toggleTodo(todo))
+      }
     },
     toggleActive() {
-      dispatch(toggleFilter('active'))
+      dispatch(toggleFilter('active'));
     },
     toggleAll() {
-      dispatch(toggleFilter('all'))
+      dispatch(toggleFilter('all'));
     },
     toggleCompleted() {
-      dispatch(toggleFilter('completed'))
+      dispatch(toggleFilter('completed'));
     }
   }
 }
@@ -41,4 +69,4 @@ const mapDispatchToProps = dispatch => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(Root)
+)(Root);
